@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const createOrUpdateProfile = useCallback(async (firebaseUser: User) => {
+    if (!db) return;
     const userRef = doc(db, 'users', firebaseUser.uid);
     const userSnap = await getDoc(userRef);
 
@@ -50,6 +51,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
@@ -68,6 +73,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [createOrUpdateProfile]);
 
   const signInWithGoogle = async () => {
+    if (!auth || !googleProvider) {
+      alert("Configuração de login incompleta. Verifique as chaves do Firebase.");
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
@@ -77,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    if (!auth) return;
     try {
       await firebaseSignOut(auth);
       setProfile(null);
