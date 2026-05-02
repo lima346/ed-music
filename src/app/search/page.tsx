@@ -15,7 +15,7 @@ export default function SearchPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTrack, setModalTrack] = useState<Track | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
