@@ -11,9 +11,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
+let app: any;
+let auth: any;
+let db: any;
+let googleProvider: any;
+
+// Only initialize if we have a valid-looking API key to prevent build crashes
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'demo-key') {
+  try {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    auth = getAuth(app);
+    db = getFirestore(app);
+    googleProvider = new GoogleAuthProvider();
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
+}
 
 export { app, auth, db, googleProvider };
