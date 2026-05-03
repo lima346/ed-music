@@ -80,6 +80,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     updateMediaSession(track);
 
+    // iOS PWA Fix: Call playVideo directly in the click event stack
+    if (playerRef.current && playerRef.current.loadVideoById) {
+      playerRef.current.loadVideoById(track.id);
+      playerRef.current.playVideo();
+    }
+
     // Save to history in localStorage
     try {
       const historyRaw = localStorage.getItem('edmusic_history') || '[]';
@@ -133,6 +139,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(true);
         setProgress(0);
         updateMediaSession(track);
+        // iOS PWA Fix
+        if (playerRef.current && playerRef.current.loadVideoById) {
+          playerRef.current.loadVideoById(track.id);
+          playerRef.current.playVideo();
+        }
       }
     }
   }, [queue, queueIndex, repeat, getNextIndex, updateMediaSession]);
@@ -153,6 +164,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(true);
         setProgress(0);
         updateMediaSession(track);
+        // iOS PWA Fix
+        if (playerRef.current && playerRef.current.loadVideoById) {
+          playerRef.current.loadVideoById(track.id);
+          playerRef.current.playVideo();
+        }
       }
     }
   }, [queue, queueIndex, progress, repeat, getNextIndex, updateMediaSession]);
