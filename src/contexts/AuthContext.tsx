@@ -5,6 +5,8 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -16,6 +18,8 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, pass: string) => Promise<void>;
+  signUpWithEmail: (email: string, pass: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -24,6 +28,8 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signInWithGoogle: async () => {},
+  signInWithEmail: async () => {},
+  signUpWithEmail: async () => {},
   signOut: async () => {},
 });
 
@@ -85,6 +91,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithEmail = async (email: string, pass: string) => {
+    if (!auth) return;
+    await signInWithEmailAndPassword(auth, email, pass);
+  };
+
+  const signUpWithEmail = async (email: string, pass: string, name: string) => {
+    if (!auth) return;
+    const res = await createUserWithEmailAndPassword(auth, email, pass);
+    if (res.user) {
+      const profileData: UserProfile = {
+        uid: res.user.uid,
+        email: res.user.email || '',
+        displayName: name,
+        photoURL: '',
+        createdAt: Date.now(),
+        lastLogin: Date.now(),
+      };
+      if (db) {
+        await setDoc(doc(db, 'users', res.user.uid), profileData);
+      }
+      setProfile(profileData);
+    }
+  };
+
   const signOut = async () => {
     if (!auth) return;
     try {
@@ -96,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );
