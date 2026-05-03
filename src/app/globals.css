@@ -87,8 +87,10 @@ button { background:none; border:none; color:inherit; cursor:pointer; font-famil
 }
 
 /* ── Player Bar ── */
-.player-bar { position:fixed; bottom:0; left:0; right:0; height:var(--player-h); background:linear-gradient(180deg,#181818,#0a0a0a); border-top:1px solid rgba(255,255,255,.06); display:grid; grid-template-columns:1fr 2fr 1fr; align-items:center; padding:0 16px; z-index:200; }
-.player-bar.hidden { display:none; }
+.player-bar { position:fixed; bottom:0; left:0; right:0; height:80px; background:rgba(18,18,18,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; padding:0 16px; z-index:500; transition:transform 0.3s; }
+.player-mini-progress { position:absolute; top:0; left:0; right:0; height:3px; background:rgba(255,255,255,0.1); cursor:pointer; }
+.player-mini-progress-fill { height:100%; background:var(--accent); transition:width 0.1s linear; }
+.player-bar.hidden { transform:translateY(100%); }
 .player-expand-touch { display:none; }
 @media(max-width:768px){
   .player-bar { 

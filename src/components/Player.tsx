@@ -164,6 +164,19 @@ export default function Player() {
 
       {/* Bottom Player Bar */}
       <div className={`player-bar ${expanded ? 'hidden' : ''}`}>
+        {/* Mini Progress Bar for Mobile/Desktop */}
+        <div className="player-mini-progress" onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const clickedPercent = x / rect.width;
+          seekTo(clickedPercent * duration);
+        }}>
+          <div 
+            className="player-mini-progress-fill" 
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
         {/* Mobile click to expand */}
         <button className="player-expand-touch" onClick={() => setExpanded(true)}>
           <IoChevronUp size={20} />
