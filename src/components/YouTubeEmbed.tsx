@@ -45,7 +45,11 @@ export default function YouTubeEmbed() {
     isReadyRef.current = true;
     event.target.setVolume(volume);
     setDuration(event.target.getDuration());
-  }, [volume, setDuration]);
+    // Auto-play if a track was already waiting
+    if (currentTrack) {
+      event.target.playVideo();
+    }
+  }, [volume, setDuration, currentTrack]);
 
   useEffect(() => {
     if (!currentTrack) return;
@@ -80,6 +84,7 @@ export default function YouTubeEmbed() {
         events: {
           onReady: onPlayerReady,
           onStateChange: onPlayerStateChange,
+          onError: (e) => console.error('YT Player Error:', e.data),
         },
       });
     };
@@ -118,6 +123,16 @@ export default function YouTubeEmbed() {
     <div
       ref={containerRef}
       className="youtube-player-container"
+      style={{
+        position: 'fixed',
+        bottom: '0',
+        left: '0',
+        width: '1px',
+        height: '1px',
+        opacity: '0.01', // Tiny opacity to keep it active on iOS
+        pointerEvents: 'none',
+        zIndex: -1
+      }}
       aria-hidden="true"
     />
   );
