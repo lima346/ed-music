@@ -1,7 +1,7 @@
 {
-  "name": "SopMusic",
-  "short_name": "SopMusic",
-  "description": "Stream music for free - Powered by YouTube",
+  "name": "ED MUSIC",
+  "short_name": "ED MUSIC",
+  "description": "Stream de Música Grátis - Powered by YouTube",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
