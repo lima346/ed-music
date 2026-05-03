@@ -92,9 +92,12 @@ export default function YouTubeEmbed() {
     if (window.YT && window.YT.Player) {
       initPlayer();
     } else {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
+      if (!document.getElementById('yt-iframe-api')) {
+        const tag = document.createElement('script');
+        tag.id = 'yt-iframe-api';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+      }
       window.onYouTubeIframeAPIReady = initPlayer;
     }
 
@@ -115,9 +118,11 @@ export default function YouTubeEmbed() {
     if (playerRef.current && isReadyRef.current && currentTrack) {
       try {
         setDuration(playerRef.current.getDuration());
+        // For iOS: explicitly call playVideo when track changes
+        playerRef.current.playVideo();
       } catch (e) { /* player not ready */ }
     }
-  }, [currentTrack, setDuration, playerRef]);
+  }, [currentTrack?.id, setDuration, playerRef]);
 
   return (
     <div
