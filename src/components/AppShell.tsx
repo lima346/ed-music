@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Player from '@/components/Player';
 import YouTubeEmbed from '@/components/YouTubeEmbed';
-import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -23,7 +22,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </main>
       <Player />
       <YouTubeEmbed />
-      <PWAInstallPrompt />
     </div>
   );
 }
