@@ -42,17 +42,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!db) return;
     const userRef = doc(db, 'users', firebaseUser.uid);
     const userSnap = await getDoc(userRef);
+    const existingData = userSnap.exists() ? userSnap.data() : {};
 
     const profileData: UserProfile = {
       uid: firebaseUser.uid,
-      email: firebaseUser.email || '',
-      displayName: firebaseUser.displayName || 'User',
-      photoURL: firebaseUser.photoURL || '',
-      createdAt: userSnap.exists() ? userSnap.data().createdAt : Date.now(),
+      email: firebaseUser.email || existingData.email || '',
+      displayName: firebaseUser.displayName || existingData.displayName || 'Usuário ED Music',
+      photoURL: firebaseUser.photoURL || existingData.photoURL || '',
+      createdAt: existingData.createdAt || Date.now(),
       lastLogin: Date.now(),
     };
 
+    // Salva no Firestore
     await setDoc(userRef, profileData, { merge: true });
+    // Atualiza o estado global da aplicação
     setProfile(profileData);
   }, []);
 
