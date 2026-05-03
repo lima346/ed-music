@@ -15,7 +15,9 @@ import {
   IoLogOutOutline,
   IoMenu,
   IoClose,
+  IoDownloadOutline,
 } from 'react-icons/io5';
+import { useEffect } from 'react';
 
 const navItems = [
   { href: '/', icon: IoHomeSharp, label: 'Início' },
@@ -80,6 +82,8 @@ export default function Sidebar() {
             <span>{item.label}</span>
           </Link>
         ))}
+        {/* Install Button in Sidebar */}
+        <SidebarInstallButton onClick={() => setMobileOpen(false)} />
       </div>
 
       {/* Spacer */}
@@ -146,5 +150,47 @@ export default function Sidebar() {
         </Link>
       </nav>
     </>
+  );
+}
+
+function SidebarInstallButton({ onClick }: { onClick: () => void }) {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState(true);
+
+  useEffect(() => {
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    onClick();
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        alert('Para instalar no iPhone:\n1. Toque no botão Compartilhar (no Safari)\n2. Escolha "Adicionar à Tela de Início"');
+      } else {
+        alert('Para instalar:\nClique nos 3 pontinhos do navegador e selecione "Instalar" ou "Adicionar à Tela de Início".');
+      }
+    }
+  };
+
+  if (isStandalone) return null;
+
+  return (
+    <button className="sidebar-link" onClick={handleInstall} title="Instalar Aplicativo" style={{ color: 'var(--accent)' }}>
+      <IoDownloadOutline size={20} />
+      <span>Instalar App</span>
+    </button>
   );
 }
