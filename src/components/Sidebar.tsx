@@ -84,6 +84,11 @@ export default function Sidebar() {
         ))}
         {/* Install Button in Sidebar */}
         <SidebarInstallButton onClick={() => setMobileOpen(false)} />
+
+        <button className="sidebar-link" onClick={() => window.location.reload()} style={{ marginTop: 'auto', opacity: 0.5 }}>
+          <IoRepeat size={18} />
+          <span>Atualizar App</span>
+        </button>
       </div>
 
       {/* Spacer */}
