@@ -7,33 +7,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    // Check if it's iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(isIOSDevice);
+
+    // If it's iOS and not already installed, show instructions
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isIOSDevice && !isStandalone) {
+      setShowPrompt(true);
+    }
+
     const handler = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
-      // Update UI notify the user they can install the PWA
       setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-    
-    // Show the install prompt
     deferredPrompt.prompt();
-    
-    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    
-    // We've used the prompt, and can't use it again, throw it away
     setDeferredPrompt(null);
     setShowPrompt(false);
   };
@@ -54,11 +54,17 @@ export default function PWAInstallPrompt() {
           </div>
           <div className="pwa-prompt-text">
             <strong>Instalar ED MUSIC</strong>
-            <span>Ouça suas músicas offline e em tela cheia</span>
+            {isIOS ? (
+              <span>Toque em Compartilhar e depois em "Adicionar à Tela de Início"</span>
+            ) : (
+              <span>Ouça suas músicas offline e em tela cheia</span>
+            )}
           </div>
-          <button className="pwa-install-btn" onClick={handleInstallClick}>
-            Instalar
-          </button>
+          {!isIOS && (
+            <button className="pwa-install-btn" onClick={handleInstallClick}>
+              Instalar
+            </button>
+          )}
           <button className="pwa-close-btn" onClick={() => setShowPrompt(false)}>
             <IoClose size={20} />
           </button>
