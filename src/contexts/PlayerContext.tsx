@@ -62,8 +62,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         artwork: [
           { src: track.thumbnail, sizes: '320x180', type: 'image/jpeg' },
           { src: track.thumbnailHigh || track.thumbnail, sizes: '480x360', type: 'image/jpeg' },
+          { src: track.thumbnailHigh || track.thumbnail, sizes: '512x512', type: 'image/jpeg' },
         ],
       });
+      // Sincroniza o estado de reprodução com o sistema
+      navigator.mediaSession.playbackState = 'playing';
     }
   }, []);
 
@@ -183,8 +186,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     if (!playerRef.current) return;
     if (isPlaying) {
       playerRef.current.pauseVideo();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     } else {
       playerRef.current.playVideo();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     }
     setIsPlaying(!isPlaying);
   }, [isPlaying]);
