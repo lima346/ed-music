@@ -17,6 +17,7 @@ export default function YouTubeEmbed() {
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isReadyRef = useRef(false);
+  const isInitializedRef = useRef(false);
 
   const onPlayerStateChange = useCallback((event: YT.OnStateChangeEvent) => {
     if (event.data === YT.PlayerState.PLAYING) {
@@ -44,33 +45,26 @@ export default function YouTubeEmbed() {
   const onPlayerReady = useCallback((event: YT.PlayerEvent) => {
     isReadyRef.current = true;
     event.target.setVolume(volume);
-    setDuration(event.target.getDuration());
-    // Auto-play if a track was already waiting
     if (currentTrack) {
+      event.target.loadVideoById(currentTrack.id);
       event.target.playVideo();
     }
-  }, [volume, setDuration, currentTrack]);
+  }, [volume, currentTrack]);
 
+  // Initial load of the YouTube API
   useEffect(() => {
-    if (!currentTrack) return;
-
-    const initPlayer = () => {
-      if (playerRef.current) {
-        playerRef.current.loadVideoById(currentTrack.id);
-        playerRef.current.setVolume(volume);
-        return;
-      }
-
+    if (isInitializedRef.current) return;
+    
+    const initAPI = () => {
       if (!containerRef.current) return;
-      containerRef.current.innerHTML = '';
-      const div = document.createElement('div');
-      div.id = 'yt-player-element';
-      containerRef.current.appendChild(div);
+      
+      const playerDiv = document.createElement('div');
+      playerDiv.id = 'yt-player-element';
+      containerRef.current.appendChild(playerDiv);
 
       playerRef.current = new window.YT.Player('yt-player-element', {
         height: '1',
         width: '1',
-        videoId: currentTrack.id,
         playerVars: {
           autoplay: 1,
           controls: 0,
@@ -80,6 +74,7 @@ export default function YouTubeEmbed() {
           modestbranding: 1,
           rel: 0,
           playsinline: 1,
+          enablejsapi: 1
         },
         events: {
           onReady: onPlayerReady,
@@ -87,10 +82,11 @@ export default function YouTubeEmbed() {
           onError: (e) => console.error('YT Player Error:', e.data),
         },
       });
+      isInitializedRef.current = true;
     };
 
     if (window.YT && window.YT.Player) {
-      initPlayer();
+      initAPI();
     } else {
       if (!document.getElementById('yt-iframe-api')) {
         const tag = document.createElement('script');
@@ -98,31 +94,35 @@ export default function YouTubeEmbed() {
         tag.src = 'https://www.youtube.com/iframe_api';
         document.head.appendChild(tag);
       }
-      window.onYouTubeIframeAPIReady = initPlayer;
+      window.onYouTubeIframeAPIReady = initAPI;
     }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [currentTrack?.id]);
+  }, []); // Run only once on mount
 
+  // Handle track changes without re-initializing the player
+  useEffect(() => {
+    if (playerRef.current && isReadyRef.current && currentTrack) {
+      try {
+        playerRef.current.loadVideoById(currentTrack.id);
+        playerRef.current.playVideo();
+        setDuration(playerRef.current.getDuration());
+      } catch (e) {
+        console.error('Error loading video:', e);
+      }
+    }
+  }, [currentTrack?.id, playerRef, isReadyRef.current]);
+
+  // Handle volume changes
   useEffect(() => {
     if (playerRef.current && isReadyRef.current) {
       try {
         playerRef.current.setVolume(volume);
-      } catch (e) { /* player not ready */ }
+      } catch (e) {}
     }
-  }, [volume, playerRef]);
-
-  useEffect(() => {
-    if (playerRef.current && isReadyRef.current && currentTrack) {
-      try {
-        setDuration(playerRef.current.getDuration());
-        // For iOS: explicitly call playVideo when track changes
-        playerRef.current.playVideo();
-      } catch (e) { /* player not ready */ }
-    }
-  }, [currentTrack?.id, setDuration, playerRef]);
+  }, [volume]);
 
   return (
     <div
@@ -134,7 +134,7 @@ export default function YouTubeEmbed() {
         left: '0',
         width: '1px',
         height: '1px',
-        opacity: '0.01', // Tiny opacity to keep it active on iOS
+        opacity: '0.01',
         pointerEvents: 'none',
         zIndex: -1
       }}
