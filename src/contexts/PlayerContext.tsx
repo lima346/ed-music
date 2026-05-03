@@ -80,6 +80,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     updateMediaSession(track);
 
+    // iOS Audio Bridge: Play a silent sound to "prime" the audio engine
+    try {
+      const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+      audio.play().catch(() => {});
+    } catch (e) {}
+
     // iOS PWA Fix: Call playVideo directly in the click event stack
     if (playerRef.current && playerRef.current.loadVideoById) {
       playerRef.current.loadVideoById(track.id);

@@ -74,7 +74,8 @@ export default function YouTubeEmbed() {
           modestbranding: 1,
           rel: 0,
           playsinline: 1,
-          enablejsapi: 1
+          enablejsapi: 1,
+          origin: window.location.origin
         },
         events: {
           onReady: onPlayerReady,
@@ -130,13 +131,13 @@ export default function YouTubeEmbed() {
       className="youtube-player-container"
       style={{
         position: 'fixed',
-        bottom: '0',
-        left: '0',
-        width: '1px',
-        height: '1px',
-        opacity: '0.01',
+        bottom: '80px',
+        right: '20px',
+        width: '10px',
+        height: '10px',
+        opacity: '0.1', // Slightly more visible for iOS to trust it
         pointerEvents: 'none',
-        zIndex: -1
+        zIndex: 1000
       }}
       aria-hidden="true"
     />
