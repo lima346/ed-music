@@ -23,6 +23,7 @@ const navItems = [
   { href: '/', icon: IoHomeSharp, label: 'Início' },
   { href: '/search', icon: IoSearch, label: 'Buscar' },
   { href: '/library', icon: IoLibrary, label: 'Biblioteca' },
+  { href: '/download', icon: IoDownloadOutline, label: 'Baixar YouTube' },
 ];
 
 const libraryItems = [
